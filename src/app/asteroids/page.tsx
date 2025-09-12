@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 // --- Constants ---
 const SHIP_SIZE = 30;
-const SHIP_THRUST = 0.05;
+const SHIP_THRUST = 0.01;
 const SHIP_TURN_SPEED = 0.05;
 const FRICTION = 0.99;
 const BULLET_SPEED = 5;
