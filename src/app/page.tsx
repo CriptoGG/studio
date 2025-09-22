@@ -1,15 +1,22 @@
 
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, Gauge, LayoutGrid, ShieldCheck, Palette, Notebook } from 'lucide-react';
+import { ArrowRight, Gauge, LayoutGrid, ShieldCheck, Palette, Notebook, CheckSquare, LogOut, User as UserIcon } from 'lucide-react';
 import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'App Showcase | Firebase Studio',
-  description: 'Explore a collection of interactive demo applications built with Next.js.',
-};
+import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const AsteroidIcon = () => (
   <svg
@@ -42,15 +49,72 @@ const SnakeIcon = () => (
 );
 
 
+function UserNav() {
+  const { user, signOut: logOut, loading } = useAuth();
+
+  if (loading) {
+    return <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />;
+  }
+
+  if (!user) {
+    return (
+      <Link href="/login" passHref>
+        <Button variant="outline">Login</Button>
+      </Link>
+    );
+  }
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    const initials = names.map(n => n[0]).join('');
+    return initials.toUpperCase().slice(0, 2);
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user.photoURL || ""} alt={user.displayName || "User"} />
+            <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {user.displayName || 'Anonymous User'}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={logOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="py-6 px-4 sm:px-6 lg:px-8 border-b">
+        <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <LayoutGrid className="text-primary h-10 w-10" />
+              <h1 className="text-4xl font-headline font-bold text-foreground">App Showcase</h1>
+            </div>
+            <UserNav />
+        </div>
         <div className="container mx-auto">
-          <div className="flex items-center space-x-3">
-            <LayoutGrid className="text-primary h-10 w-10" />
-            <h1 className="text-4xl font-headline font-bold text-foreground">App Showcase</h1>
-          </div>
           <p className="text-muted-foreground mt-1 text-lg">
             Welcome! Explore interactive demo applications built with Next.js and Firebase Studio.
           </p>
@@ -286,3 +350,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
